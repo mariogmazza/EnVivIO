@@ -1,27 +1,22 @@
-export const addNewField = fieldArr => ({
+export const addNewFieldInput = fieldArr => ({
   type: "ADDING_NEW_FIELD",
   data: fieldArr
 });
 
-export const handleChange = (e, index) => {
-  const tempArr = [...this.state.addedFieldArr];
-  if (e.target.name === "must-label") {
-    tempArr[index][0] = e.target.value;
-  } else {
-    tempArr[index][1] = e.target.value;
-  }
-  this.setState({ addedFieldArr: tempArr });
-};
+export const savingTaskField = fieldArray => ({
+  type: "ADD_INFO_TO_FIELDS",
+  data: fieldArray
+});
 
-// export const setAllWatched = watched => ({
-//   type: SET_ALL_WATCHED_MOVIES,
-//   data: watched
-// });
+export const editingMode = isEdit => ({
+  type: "EDIT_ON_OFF",
+  data: isEdit
+});
 
-// export const setCurrentWatched = watched => ({
-//   type: SET_CURRENT_WATCHED_MOVIE,
-//   data: watched
-// });
+export const deleteRow = newModdedArray => ({
+  type: "DELETING_ROW",
+  data: newModdedArray
+});
 
 // export const deletedWatchedMovie = deletedMsg => ({
 //   type: DELETE_MOVIE_FROM_WATCHEDLIST,

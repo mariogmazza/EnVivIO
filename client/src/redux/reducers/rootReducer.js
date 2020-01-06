@@ -1,8 +1,9 @@
 import { combineReducers } from "redux";
-import formFieldReducer from "./formFieldReducer";
+import { addFormFieldReducer, isEditingReducer } from "./formFieldReducer";
 
 const rootReducer = combineReducers({
-  formFieldReducer
+  addFormFieldReducer,
+  isEditingReducer
 });
 
 export default rootReducer;

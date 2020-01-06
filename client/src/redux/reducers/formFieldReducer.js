@@ -1,16 +1,24 @@
-let initialState = [["", ""]];
+const initialState = [["", ""]];
 
-const formFieldReducer = (state = initialState, action) => {
+export const addFormFieldReducer = (state = initialState, action) => {
   switch (action.type) {
     case "ADDING_NEW_FIELD":
-      return {
-        ...state,
-        data: [...action.data, ["", ""]]
-      };
+      return [...state, ["", ""]];
+    case "ADD_INFO_TO_FIELDS":
+      return action.data;
+    case "DELETING_ROW":
+      return action.data;
 
     default:
       return state;
   }
 };
 
-export default formFieldReducer;
+export const isEditingReducer = (state = false, action) => {
+  switch (action.type) {
+    case "EDIT_ON_OFF":
+      return action.data;
+    default:
+      return state;
+  }
+};

@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from "react";
+import React from "react";
 import { withStyles } from "@material-ui/core/styles";
 import Title from "./Title";
-import { TextField, Grid, Button } from "@material-ui/core";
+import { TextField, Grid, Button, Typography } from "@material-ui/core";
 import InputAdornment from "@material-ui/core/InputAdornment";
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
@@ -10,8 +10,12 @@ import IconButton from "@material-ui/core/IconButton";
 import DeleteIcon from "@material-ui/icons/Delete";
 import SaveIcon from "@material-ui/icons/Save";
 import { connect } from "react-redux";
-
-import { addNewField } from "../redux/actions/formFieldAction";
+import {
+  addNewFieldInput,
+  savingTaskField,
+  editingMode,
+  deleteRow
+} from "../redux/actions/formFieldAction";
 
 const styles = theme => ({
   seeMore: {
@@ -24,13 +28,13 @@ const styles = theme => ({
 
 class MustList extends React.Component {
   state = {
-    addedFieldArr: [["", ""]],
+    addedFieldArr: this.props.fieldArrayInfo,
     isEditMode: false
   };
 
-  addNewField = () => {
-    this.setState({ addedFieldArr: [...this.state.addedFieldArr, ["", ""]] });
-  };
+  handleNewField() {
+    this.props.addNewFieldInput(this.state.addedFieldArr);
+  }
 
   handleChange = (e, index) => {
     const tempArr = [...this.state.addedFieldArr];
@@ -39,26 +43,25 @@ class MustList extends React.Component {
     } else {
       tempArr[index][1] = e.target.value;
     }
-    this.setState({ addedFieldArr: tempArr });
+
+    this.setState({ addedFieldArr: tempArr }, () => {
+      this.props.savingTaskField(tempArr);
+    });
   };
 
   handleEdit = () => {
-    this.setState({ isEditMode: !this.state.isEditMode });
+    this.setState({ isEditMode: !this.state.isEditMode }, () => {
+      this.props.editingMode(this.state.isEditMode);
+    });
   };
 
   handleDeleteRow = (e, index) => {
-    console.log("INDEX =>", index);
-    console.log("BEFORE", this.state.addedFieldArr);
-
-    const tempArr = this.state.addedFieldArr;
-
-    const filtered = tempArr.filter((item, ind) => {
+    const filtered = this.state.addedFieldArr.filter((item, ind) => {
       return ind !== index;
     });
 
-    console.log("AFTER", filtered);
-    this.setState(() => {
-      return { addedFieldArr: filtered };
+    this.setState({ addedFieldArr: filtered }, () => {
+      this.props.deleteRow(filtered);
     });
   };
 
@@ -67,9 +70,8 @@ class MustList extends React.Component {
   };
 
   componentDidUpdate(prevProps, prevState) {
-    if (this.state.addedFieldArr !== prevState.addedFieldArr) {
-      console.log("im here");
-      this.setState({ addedFieldArr: this.state.addedFieldArr });
+    if (this.props.fieldArrayInfo !== prevProps.fieldArrayInfo) {
+      this.setState({ addedFieldArr: [...this.props.fieldArrayInfo] });
     }
   }
 
@@ -93,7 +95,12 @@ class MustList extends React.Component {
             </Grid>
           </Grid>
           <Grid item sm={12} md={12} lg={12} xl={12}>
-            <Title>List Your "Must" Payments</Title>
+            <Title>List Your all of your debts</Title>
+            <Typography variant="subtitle1" gutterBottom>
+              Use this list to "clear your mind" of all of your current debts
+              whatever they may be list them here, later we'll take care of them
+              and set them in thier proper category.
+            </Typography>
           </Grid>
 
           {addedFieldArr.map((val, index) => {
@@ -102,7 +109,7 @@ class MustList extends React.Component {
                 <Grid item sm={6} md={6} lg={6}>
                   <TextField
                     label="Must payment"
-                    value={this.state.addedFieldArr[index][0]}
+                    value={addedFieldArr[index][0]}
                     name="must-label"
                     onChange={e => this.handleChange(e, index)}
                     variant="outlined"
@@ -112,7 +119,7 @@ class MustList extends React.Component {
                 <Grid item sm={4} md={3} lg={3}>
                   <TextField
                     label="Amount"
-                    value={this.state.addedFieldArr[index][1]}
+                    value={addedFieldArr[index][1]}
                     name="amount-label"
                     onChange={e => this.handleChange(e, index)}
                     InputProps={{
@@ -164,7 +171,7 @@ class MustList extends React.Component {
                 color="primary"
                 size="medium"
                 aria-label="add"
-                onClick={() => this.addNewField()}
+                onClick={() => this.handleNewField()}
               >
                 <AddIcon />
               </Fab>
@@ -176,10 +183,16 @@ class MustList extends React.Component {
   }
 }
 
-const mapState = state => ({});
+const mapState = state => ({
+  fieldArrayInfo: state.addFormFieldReducer,
+  isEditMode: state.isEditingReducer
+});
 
 const actions = {
-  addNewField
+  addNewFieldInput,
+  savingTaskField,
+  editingMode,
+  deleteRow
 };
 
 export default connect(mapState, actions)(withStyles(styles)(MustList));
