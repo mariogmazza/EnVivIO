@@ -18,6 +18,27 @@ export const deleteRow = newModdedArray => ({
   data: newModdedArray
 });
 
+export const saveDueDate = dueDateStrg => ({
+  type: "SAVING_DUE_DATE",
+  data: dueDateStrg
+});
+
+// export const savingAllFields = ({ data, value, label, index }) => {
+//   const tempArr = [...data];
+
+//   if (label === "must-label") {
+//     tempArr[index][0] = value;
+//   } else if (label === "amount-label") {
+//     tempArr[index][1] = value;
+//   } else {
+//     tempArr[index][2] = value;
+//   }
+
+//   return dispatch => {
+//     dispatch(savingTaskField(tempArr));
+//   };
+// };
+
 // export const deletedWatchedMovie = deletedMsg => ({
 //   type: DELETE_MOVIE_FROM_WATCHEDLIST,
 //   deletedMsg

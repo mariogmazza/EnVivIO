@@ -1,4 +1,4 @@
-const initialState = [["", ""]];
+const initialState = [["", "", ""]];
 
 export const addFormFieldReducer = (state = initialState, action) => {
   switch (action.type) {
@@ -7,6 +7,8 @@ export const addFormFieldReducer = (state = initialState, action) => {
     case "ADD_INFO_TO_FIELDS":
       return action.data;
     case "DELETING_ROW":
+      return action.data;
+    case "SAVING_DUE_DATE":
       return action.data;
 
     default:

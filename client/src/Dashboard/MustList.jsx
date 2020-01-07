@@ -16,6 +16,7 @@ import {
   editingMode,
   deleteRow
 } from "../redux/actions/formFieldAction";
+import DatePickerCustom from "../components/DatePickerCustom";
 
 const styles = theme => ({
   seeMore: {
@@ -40,9 +41,12 @@ class MustList extends React.Component {
     const tempArr = [...this.state.addedFieldArr];
     if (e.target.name === "must-label") {
       tempArr[index][0] = e.target.value;
-    } else {
+    } else if (e.target.name === "amount-label") {
       tempArr[index][1] = e.target.value;
     }
+    // } else {
+    // 	tempArr[index][2] =
+    // }
 
     this.setState({ addedFieldArr: tempArr }, () => {
       this.props.savingTaskField(tempArr);
@@ -106,7 +110,7 @@ class MustList extends React.Component {
           {addedFieldArr.map((val, index) => {
             return (
               <React.Fragment key={index}>
-                <Grid item sm={6} md={6} lg={6}>
+                <Grid item sm={6} md={6} lg={4}>
                   <TextField
                     label="Must payment"
                     value={addedFieldArr[index][0]}
@@ -116,7 +120,7 @@ class MustList extends React.Component {
                     fullWidth
                   />
                 </Grid>
-                <Grid item sm={4} md={3} lg={3}>
+                <Grid item sm={4} md={3} lg={2}>
                   <TextField
                     label="Amount"
                     value={addedFieldArr[index][1]}
@@ -131,6 +135,9 @@ class MustList extends React.Component {
                     variant="outlined"
                     fullWidth
                   />
+                </Grid>
+                <Grid item lg={4}>
+                  <DatePickerCustom index={index} />
                 </Grid>
                 {isEditMode && (
                   <Grid item sm={1} md={1} lg={1}>
