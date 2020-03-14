@@ -34,14 +34,23 @@ function MaterialUIPickers(props) {
   const [selectedDate, setSelectedDate] = React.useState(new Date());
 
   const { fieldArrayInfo, index, saveDueDate } = props;
-  useEffect(() => {
-    console.log("mounted");
+
+  const onLoadSave = () => {
+    const formattedDate = `${new Date().getMonth()}/ ${new Date().getDate() /
+      new Date()}}`;
+
     const tempArr = [...fieldArrayInfo];
     if (fieldArrayInfo) {
       tempArr[index][2] = JSON.stringify(new Date());
     }
 
     store.dispatch(saveDueDate(tempArr));
+  };
+
+  useEffect(() => {
+    console.log("mounted");
+
+    onLoadSave(); // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   const handleDateChange = (e, dateFormatted) => {
