@@ -43,6 +43,8 @@ class MustList extends React.Component {
       tempArr[index][0] = e.target.value;
     } else if (e.target.name === "amount-label") {
       tempArr[index][1] = e.target.value;
+    } else if (e.target.name === "paymentmethod-label") {
+      tempArr[index][3] = e.target.value;
     }
     // } else {
     // 	tempArr[index][2] =
@@ -110,7 +112,8 @@ class MustList extends React.Component {
           {addedFieldArr.map((val, index) => {
             return (
               <React.Fragment key={index}>
-                <Grid item sm={6} md={6} lg={4}>
+                {/* <Grid item sm={6} md={6} lg={4}> */}
+                <Grid item>
                   <TextField
                     label="Must payment"
                     value={addedFieldArr[index][0]}
@@ -120,7 +123,7 @@ class MustList extends React.Component {
                     fullWidth
                   />
                 </Grid>
-                <Grid item sm={4} md={3} lg={2}>
+                <Grid item>
                   <TextField
                     label="Amount"
                     value={addedFieldArr[index][1]}
@@ -136,8 +139,18 @@ class MustList extends React.Component {
                     fullWidth
                   />
                 </Grid>
-                <Grid item lg={4}>
+                <Grid item>
                   <DatePickerCustom index={index} />
+                </Grid>
+                <Grid item>
+                  <TextField
+                    label="Payment Method"
+                    value={addedFieldArr[index][3]}
+                    name="paymentmethod-label"
+                    onChange={e => this.handleChange(e, index)}
+                    variant="outlined"
+                    fullWidth
+                  />
                 </Grid>
                 {isEditMode && (
                   <Grid item sm={1} md={1} lg={1}>
