@@ -4,12 +4,16 @@ import App from "./app/App";
 import configureStore from "../src/redux/store/configureStore";
 import { Provider } from "react-redux";
 import * as serviceWorker from "./serviceWorker";
+import DateFnsUtils from "@date-io/date-fns";
+import { MuiPickersUtilsProvider } from "@material-ui/pickers";
 
 const store = configureStore();
 
 ReactDOM.render(
   <Provider store={store}>
-    <App />
+    <MuiPickersUtilsProvider utils={DateFnsUtils}>
+      <App />
+    </MuiPickersUtilsProvider>
   </Provider>,
   document.getElementById("root")
 );

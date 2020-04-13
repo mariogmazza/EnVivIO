@@ -1,98 +1,60 @@
-import "date-fns";
-import React, { useEffect } from "react";
-import DateFnsUtils from "@date-io/date-fns";
-import {
-  MuiPickersUtilsProvider,
-  KeyboardDatePicker
-} from "@material-ui/pickers";
-import { makeStyles } from "@material-ui/core/styles";
-import { saveDueDate } from "../redux/actions/formFieldAction";
-import configureStore from "../redux/store/configureStore";
+import React, { Fragment } from "react";
+import { KeyboardDatePicker } from "@material-ui/pickers";
 import { connect } from "react-redux";
+import { saveDueDate } from "../redux/actions/allListActions";
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    "& > *": {
-      margin: theme.spacing(1)
-    }
-  },
-  extendedIcon: {
-    marginRight: theme.spacing(1)
-  },
-  muiFormControlMarginNormal: {
-    marginTop: "0px",
-    marginBottom: " 0px"
+class CustomDatePicker extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      selectedDate: new Date(),
+    };
   }
-}));
 
-const store = configureStore();
+  handleDateChange(date) {
+    this.setState({ selectedDate: date });
+    this.props.saveDueDate(date);
+  }
 
-function MaterialUIPickers(props) {
-  const classes = useStyles();
-
-  // The first commit of Material-UI
-  const [selectedDate, setSelectedDate] = React.useState(new Date());
-
-  const { fieldArrayInfo, index, saveDueDate } = props;
-
-  const onLoadSave = () => {
-    const formattedDate = `${new Date().getMonth()}/ ${new Date().getDate() /
-      new Date()}}`;
-
-    const tempArr = [...fieldArrayInfo];
-    if (fieldArrayInfo) {
-      tempArr[index][2] = JSON.stringify(new Date());
+  componentDidUpdate(prevProps) {
+    if (this.props.resetDueDate !== prevProps.resetDueDate) {
+      this.setState({ selectedDate: new Date() });
     }
+  }
 
-    store.dispatch(saveDueDate(tempArr));
-  };
-
-  useEffect(() => {
-    console.log("mounted");
-
-    onLoadSave(); // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleDateChange = (e, dateFormatted) => {
-    const tempArr = [...props.fieldArrayInfo];
-
-    if (dateFormatted) {
-      tempArr[props.index][2] = dateFormatted;
-    }
-
-    setSelectedDate(dateFormatted);
-    props.saveDueDate(tempArr);
-  };
-
-  return (
-    <React.Fragment>
-      <MuiPickersUtilsProvider utils={DateFnsUtils}>
+  render() {
+    const { selectedDate } = this.state;
+    return (
+      <Fragment>
         <KeyboardDatePicker
-          className={classes.muiFormControlMarginNormal}
-          //   disableToolbar
+          autoOk
           variant="inline"
           inputVariant="outlined"
+          label="Due Date"
           format="MM/dd/yyyy"
-          margin="normal"
-          //   id="date-picker-inline"
-          label="Due date"
           value={selectedDate}
-          onChange={(e, dateFormatted) => handleDateChange(e, dateFormatted)}
-          KeyboardButtonProps={{
-            "aria-label": "change date"
-          }}
+          InputAdornmentProps={{ position: "start" }}
+          onChange={(date) => this.handleDateChange(date)}
         />
-      </MuiPickersUtilsProvider>
-    </React.Fragment>
-  );
+      </Fragment>
+    );
+  }
 }
 
-const mapState = state => ({
-  fieldArrayInfo: state.addFormFieldReducer
-});
+// const mapStateToProps = (state) => {
+//   const { byIds, allPaymentIds } = state.allPayments || {};
+//   const allPayments =
+//     allPaymentIds && state.allPayments.allPaymentIds.length
+//       ? allPaymentIds.map((id) => (byIds ? { ...byIds[id], id } : null))
+//       : null;
+//   return { allPayments };
+// };
 
-const action = {
-  saveDueDate
+const mapStateToProps = (state) => {
+  const { resetDueDate } = state.allPayments;
+  return {
+    resetDueDate: resetDueDate,
+  };
 };
 
-export default connect(mapState, action)(MaterialUIPickers);
+export default connect(mapStateToProps, { saveDueDate })(CustomDatePicker);
