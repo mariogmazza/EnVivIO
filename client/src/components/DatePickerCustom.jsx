@@ -1,38 +1,61 @@
-import React, { Fragment } from "react";
+import React, { Component, Fragment } from "react";
 import { KeyboardDatePicker } from "@material-ui/pickers";
 import { connect } from "react-redux";
-import { saveDueDate } from "../redux/actions/allListActions";
+import { updaterLineItem } from "../redux/actions/allListActions";
 
-class CustomDatePicker extends React.Component {
+class CustomDatePicker extends Component {
   constructor(props) {
     super(props);
+
     this.state = {
-      selectedDate: new Date(),
+      localDate: new Date(),
     };
   }
 
-  handleDateChange(date) {
-    this.setState({ selectedDate: date });
-    this.props.saveDueDate(date);
-  }
+  handleDateChange = (date) => {
+    this.setState({ localDate: date });
+    const { index } = this.props;
 
-  componentDidUpdate(prevProps) {
-    if (this.props.resetDueDate !== prevProps.resetDueDate) {
-      this.setState({ selectedDate: new Date() });
+    if (this.props.inputVariantType === "outlined") {
+      this.props.updaterLineItem({
+        commands: ["SAVING_DUE_DATE"],
+        content: { date },
+      });
     }
-  }
+
+    if (this.props.index !== null) {
+      this.props.updaterLineItem({
+        commands: ["UPDATE_DUEDATE_LINEITEM_STAGING", "ADD_TO_ISDIRTY_LIST"],
+        content: { date, index },
+      });
+    }
+  };
 
   render() {
-    const { selectedDate } = this.state;
+    const {
+      index,
+      inputVariantType,
+      isEditMode,
+      savedDueDate,
+      tempStagingList,
+    } = this.props;
+
     return (
       <Fragment>
         <KeyboardDatePicker
           autoOk
           variant="inline"
-          inputVariant="outlined"
-          label="Due Date"
+          inputVariant={inputVariantType}
+          disabled={inputVariantType === "outlined" ? isEditMode : false}
+          label={inputVariantType === "outlined" ? "Due Date" : ""}
           format="MM/dd/yyyy"
-          value={selectedDate}
+          value={
+            inputVariantType === "outlined"
+              ? savedDueDate
+              : tempStagingList.length && tempStagingList[index]
+              ? tempStagingList[index].dueDate
+              : this.state.localDate
+          }
           InputAdornmentProps={{ position: "start" }}
           onChange={(date) => this.handleDateChange(date)}
         />
@@ -41,20 +64,16 @@ class CustomDatePicker extends React.Component {
   }
 }
 
-// const mapStateToProps = (state) => {
-//   const { byIds, allPaymentIds } = state.allPayments || {};
-//   const allPayments =
-//     allPaymentIds && state.allPayments.allPaymentIds.length
-//       ? allPaymentIds.map((id) => (byIds ? { ...byIds[id], id } : null))
-//       : null;
-//   return { allPayments };
-// };
-
 const mapStateToProps = (state) => {
-  const { resetDueDate } = state.allPayments;
+  const { isEditMode, savedDueDate } = state.allPayments;
+  const tempStagingList = [...state.allPayments.tempStagingList];
   return {
-    resetDueDate: resetDueDate,
+    tempStagingList,
+    savedDueDate,
+    isEditMode,
   };
 };
 
-export default connect(mapStateToProps, { saveDueDate })(CustomDatePicker);
+export default connect(mapStateToProps, {
+  updaterLineItem,
+})(CustomDatePicker);

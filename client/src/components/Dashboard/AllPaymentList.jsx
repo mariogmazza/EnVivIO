@@ -6,8 +6,12 @@ import InputAdornment from "@material-ui/core/InputAdornment";
 import Fab from "@material-ui/core/Fab";
 import AddIcon from "@material-ui/icons/Add";
 import EditIcon from "@material-ui/icons/Edit";
+import { green } from "@material-ui/core/colors";
 import { connect } from "react-redux";
-import { addToAllList, editingMode } from "../../redux/actions/allListActions";
+import {
+  addToAllList,
+  updaterLineItem,
+} from "../../redux/actions/allListActions";
 import DatePickerCustom from "../DatePickerCustom";
 
 const styles = (theme) => ({
@@ -16,6 +20,13 @@ const styles = (theme) => ({
   },
   margin: {
     margin: theme.spacing(1),
+  },
+  fabGreen: {
+    color: theme.palette.common.white,
+    backgroundColor: green[500],
+    "&:hover": {
+      backgroundColor: green[600],
+    },
   },
 });
 
@@ -38,11 +49,21 @@ class AllPaymentList extends React.Component {
 
   handleEdit = () => {
     console.log("Editing");
-    this.props.editingMode();
+    if (this.props.stateChanged) {
+      this.props.updaterLineItem({
+        commands: ["TOGGLE_MODAL"],
+        content: {},
+      });
+    } else {
+      this.props.updaterLineItem({
+        commands: ["TOGGLE_EDIT_MODE"],
+        content: {},
+      });
+    }
   };
 
   handleAddToList = () => {
-    const { dueDate, addToAllList, allPaymentList } = this.props;
+    const { savedDueDate, addToAllList, allPaymentList } = this.props;
     let { paymentLabel, amount, paymentMethod } = this.state;
     const toDays = new Date();
     let alreadySaved = false;
@@ -60,13 +81,16 @@ class AllPaymentList extends React.Component {
 
     if (alreadySaved) console.log("Payment Label Already exist");
 
-    if (this.state.paymentLabel && this.state.amount && !alreadySaved) {
+    if (paymentLabel && amount && !alreadySaved) {
       addToAllList({
-        paymentLabel: paymentLabel,
-        amount: amount,
-        paymentMethod: paymentMethod,
-        dueDate: dueDate ? dueDate : toDays,
-        isPaid: false,
+        commands: ["ADD_TO_ALLPAYMENT_LIST", "ADD_TO_STAGING_LIST"],
+        content: {
+          paymentLabel: paymentLabel,
+          amount: amount,
+          paymentMethod: paymentMethod,
+          dueDate: savedDueDate ? savedDueDate : toDays,
+          isPaid: false,
+        },
       });
     }
 
@@ -79,7 +103,12 @@ class AllPaymentList extends React.Component {
 
   render() {
     const { paymentLabel, amount, paymentMethod } = this.state;
-    const { isBtnDisable, isEditMode } = this.props;
+    const {
+      isStagingListEmpty,
+      isEditMode,
+      savedDueDate,
+      classes,
+    } = this.props;
 
     return (
       <Grid container spacing={2}>
@@ -97,7 +126,9 @@ class AllPaymentList extends React.Component {
             </Grid>
             <Grid item>
               <Fab
-                disabled={isBtnDisable}
+                disabled={isStagingListEmpty}
+                color="primary"
+                // className={isEditMode ? classes.fabGreen : ""}
                 aria-label="edit"
                 size="small"
                 onClick={this.handleEdit}
@@ -118,6 +149,7 @@ class AllPaymentList extends React.Component {
               <TextField
                 label="Payment Name"
                 value={paymentLabel}
+                disabled={isEditMode}
                 name="paymentLabel"
                 onChange={(e) => this.handleChange(e)}
                 variant="outlined"
@@ -128,6 +160,7 @@ class AllPaymentList extends React.Component {
               <TextField
                 label="Amount"
                 value={amount}
+                disabled={isEditMode}
                 name="amount"
                 onChange={(e) => this.handleChange(e)}
                 InputProps={{
@@ -145,6 +178,7 @@ class AllPaymentList extends React.Component {
               <TextField
                 label="Payment Method"
                 value={paymentMethod}
+                disabled={isEditMode}
                 name="paymentMethod"
                 onChange={(e) => this.handleChange(e)}
                 variant="outlined"
@@ -152,7 +186,11 @@ class AllPaymentList extends React.Component {
               />
             </Grid>
             <Grid item>
-              <DatePickerCustom />
+              <DatePickerCustom
+                index={null}
+                lineItemSavedDueDate={savedDueDate}
+                inputVariantType={"outlined"}
+              />
             </Grid>
             <Grid item>
               <Fab
@@ -173,19 +211,27 @@ class AllPaymentList extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-  const { dueDate, isBtnDisable, isEditMode } = state.allPayments;
-  const allPaymentList = [...state.allPayments.allPaymentList];
-  return {
-    dueDate,
-    allPaymentList,
-    isBtnDisable,
+  const {
+    savedDueDate,
+    isStagingListEmpty,
     isEditMode,
+    stateChanged,
+  } = state.allPayments;
+  const allPaymentList = JSON.parse(
+    JSON.stringify(state.allPayments.allPaymentList)
+  );
+  return {
+    savedDueDate,
+    allPaymentList,
+    isStagingListEmpty,
+    isEditMode,
+    stateChanged,
   };
 };
 
 const mapActionsToProps = {
   addToAllList,
-  editingMode,
+  updaterLineItem,
 };
 
 export default connect(

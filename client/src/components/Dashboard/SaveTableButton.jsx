@@ -3,6 +3,8 @@ import { connect } from "react-redux";
 import { withStyles } from "@material-ui/core/styles";
 import { Grid, Button } from "@material-ui/core";
 import SaveIcon from "@material-ui/icons/Save";
+import { green } from "@material-ui/core/colors";
+import { updaterLineItem } from "../../redux/actions/allListActions";
 
 const styles = (theme) => ({
   seeMore: {
@@ -11,46 +13,61 @@ const styles = (theme) => ({
   margin: {
     margin: theme.spacing(1),
   },
+  fabGreen: {
+    color: theme.palette.common.white,
+    backgroundColor: green[500],
+    "&:hover": {
+      backgroundColor: green[600],
+    },
+  },
 });
 
 class SaveTableButton extends Component {
   constructor(props) {
     super(props);
-    this.state = {};
   }
 
+  handleSaveAllChanges = () => {
+    if (!this.props.isStagingListEmpty && this.props.stateChanged) {
+      this.props.updaterLineItem({
+        commands: ["TOGGLE_MODAL"],
+        content: {},
+      });
+    }
+  };
   render() {
-    const { classes, isBtnDisable } = this.props;
+    const { classes, isStagingListEmpty, stateChanged } = this.props;
     return (
-      <div>
-        <Grid item container justify="flex-end">
+      <>
+        <Grid container justify="flex-end">
           <Button
             variant="contained"
             color="primary"
             size="small"
-            disabled={isBtnDisable}
-            className={classes.button}
+            disabled={isStagingListEmpty}
+            className={stateChanged ? classes.fabGreen : ""}
             startIcon={<SaveIcon />}
-            onClick={this.handleSaveForm}
+            onClick={this.handleSaveAllChanges}
           >
             Save
           </Button>
         </Grid>
-      </div>
+      </>
     );
   }
 }
 
 const mapStateToProps = (state) => {
-  const { isBtnDisable } = state.allPayments;
-  const allItems = [...state.allPayments.allPaymentList];
+  const { isStagingListEmpty, stateChanged } = state.allPayments;
   return {
-    isBtnDisable,
-    allItems,
+    isStagingListEmpty,
+    stateChanged,
   };
 };
 
-const mapActionsToProps = {};
+const mapActionsToProps = {
+  updaterLineItem,
+};
 
 export default connect(
   mapStateToProps,

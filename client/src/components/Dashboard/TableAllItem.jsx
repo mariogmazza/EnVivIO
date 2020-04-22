@@ -7,40 +7,138 @@ import TableContainer from "@material-ui/core/TableContainer";
 import TableHead from "@material-ui/core/TableHead";
 import TableRow from "@material-ui/core/TableRow";
 import Paper from "@material-ui/core/Paper";
-import IconButton from "@material-ui/core/IconButton";
-import DeleteIcon from "@material-ui/icons/Delete";
-import { Button } from "@material-ui/core";
-import SaveIcon from "@material-ui/icons/Save";
-
+// import IconButton from "@material-ui/core/IconButton";
+// import DeleteIcon from "@material-ui/icons/Delete";
+// import SaveIcon from "@material-ui/icons/Save";
+// import Fab from "@material-ui/core/Fab";
+// import TextField from "@material-ui/core/TextField";
+import { green } from "@material-ui/core/colors";
+// import DatePickerCustom from "../DatePickerCustom";
 import { connect } from "react-redux";
-import {
-  deleteRow,
-  editingMode,
-  disableButton,
-} from "../../redux/actions/allListActions";
+import { updaterLineItem } from "../../redux/actions/allListActions";
+// import IsPaidCheckBox from "./IsPaidCheckBox";
+import isEqual from "lodash/isEqual";
+import EditableTable from "./EditableTable";
 
 const styles = (theme) => ({
   table: {
     minWidth: 650,
+  },
+  fabGreen: {
+    color: theme.palette.common.white,
+    backgroundColor: green[500],
+    "&:hover": {
+      backgroundColor: green[600],
+    },
   },
 });
 
 class SimpleTable extends React.Component {
   constructor(props) {
     super(props);
-    this.state = {};
+    // this.state = {
+    //   paymentLabel: " ",
+    //   amount: " ",
+    //   paymentMethod: "",
+    // };
   }
-  handleDeleteRow = (index) => {
-    console.log("Deleting row ", index);
-    if (this.props.allItems.length - 1 <= 0) {
-      this.props.disableButton();
-      this.props.editingMode();
-    }
-    this.props.deleteRow(index);
-  };
+
+  // handleChange = (e, index) => {
+  //   let { name, value } = e.target;
+
+  //   this.props.updaterLineItem({
+  //     commands: ["ADD_TO_ISDIRTY_LIST"],
+  //     content: { index },
+  //   });
+
+  //   this.setState({
+  //     [name]: value,
+  //   });
+
+  //   if (name === "paymentLabel") {
+  //     if (value === "") {
+  //       value = null;
+  //     }
+  //     this.props.updaterLineItem({
+  //       commands: ["UPDATE_PAYMENTNAME_LINEITEM_STAGING"],
+  //       content: {
+  //         paymentname: value,
+  //         index,
+  //       },
+  //     });
+  //   }
+
+  //   if (name === "amount") {
+  //     if (value === "") {
+  //       value = null;
+  //     }
+  //     this.props.updaterLineItem({
+  //       commands: ["UPDATE_AMOUNT_LINEITEM_STAGING"],
+  //       content: {
+  //         amount: value,
+  //         index,
+  //       },
+  //     });
+  //   }
+
+  //   if (name === "paymentMethod") {
+  //     if (value === "") {
+  //       value = null;
+  //     }
+  //     this.props.updaterLineItem({
+  //       commands: ["UPDATE_PAYMENTMETHOD_LINEITEM_STAGING"],
+  //       content: {
+  //         paymentMethod: value,
+  //         index,
+  //       },
+  //     });
+  //   }
+  // };
+
+  // handleDeleteRow = (index) => {
+  //   if (this.props.allPaymentList.length - 1 <= 0) {
+  //     this.props.updaterLineItem({
+  //       commands: ["DISABLING_EDIT_SAVEALL_BUTTON", "TOGGLE_EDIT_MODE"],
+  //       content: {},
+  //     });
+  //   }
+  //   this.props.updaterLineItem({
+  //     commands: ["DELETING_ROW"],
+  //     content: { index },
+  //   });
+  // };
+
+  // handleSaveLineChanges = (index) => {
+  //   this.props.updaterLineItem({
+  //     commands: ["MERGING_CHANGES_LINE_SAVED"],
+  //     content: { index },
+  //   });
+  // };
+
+  // componentDidMount() {
+  //   this.setState({ allPaymentList: this.props.allPaymentList });
+  // }
+
+  // shouldComponentUpdate(nextProps) {
+  //   return !isEqual(this.state.allPaymentList, nextProps.allPaymentList);
+  // }
+
+  // componentDidUpdate(prevProps) {
+  //   if (!isEqual(this.props.allPaymentList, prevProps.allPaymentList)) {
+  //     this.setState({ allPaymentList: this.props.allPaymentList });
+  //     console.log("papa");
+  //   }
+
+  //   if (this.props.isEditMode !== prevProps.isEditMode) {
+  //     this.setState({ isEditMode: this.props.isEditMode });
+  //     console.log("dddduuu");
+  //   }
+  // }
 
   render() {
-    const { classes, allItems, isEditMode } = this.props;
+    const { classes, isEditMode, allPaymentList } = this.props;
+    // const { paymentLabel, amount } = this.state;
+
     return (
       <TableContainer component={Paper}>
         <Table className={classes.table} aria-label="simple table">
@@ -50,50 +148,99 @@ class SimpleTable extends React.Component {
               <TableCell align="right">Amount&nbsp;(required)</TableCell>
               <TableCell align="right">Payment Method</TableCell>
               <TableCell align="right">Due Date</TableCell>
-              <TableCell align="right">Paid&nbsp;(Yes/No)</TableCell>
+              <TableCell align="right">Paid</TableCell>
             </TableRow>
           </TableHead>
           <TableBody>
-            {allItems.map((row, index) => (
-              <TableRow key={index}>
-                <TableCell component="th" scope="row">
-                  {row.paymentLabel}
-                </TableCell>
-                <TableCell align="right">{row.amount}</TableCell>
-                <TableCell align="right">{row.paymentMethod}</TableCell>
-                <TableCell align="right">
-                  {new Date(row.dueDate).toLocaleDateString()}
-                </TableCell>
-                <TableCell align="right">{row.isPaid ? "Yes" : "No"}</TableCell>
+            {isEditMode && (
+              // <EditableTable paymentLabel={paymentLabel} amount={amount} />
+              <EditableTable />
+            )}
+            {/* {isEditMode &&
+              allPaymentList.map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell component="th" scope="row">
+                    <TextField
+                      error={!paymentLabel}
+                      label={!paymentLabel ? "Error" : ""}
+                      name="paymentLabel"
+                      onChange={(e) => this.handleChange(e, index)}
+                      defaultValue={row.paymentLabel}
+                    />
+                  </TableCell>
+                  <TableCell align="right">
+                    <TextField
+                      error={!amount}
+                      label={!amount ? "Error" : ""}
+                      name="amount"
+                      onChange={(e) => this.handleChange(e, index)}
+                      defaultValue={row.amount}
+                    />
+                  </TableCell>
+                  <TableCell align="right">
+                    <TextField
+                      name="paymentMethod"
+                      onChange={(e) => this.handleChange(e, index)}
+                      defaultValue={row.paymentMethod}
+                    />
+                  </TableCell>
+                  <TableCell align="right">
+                    <DatePickerCustom
+                      index={index}
+                      lineItemSavedDueDate={row.dueDate}
+                      inputVariantType={"standard"}
+                    />
+                  </TableCell>
+                  <TableCell align="right">
+                    <IsPaidCheckBox index={index} />
+                  </TableCell>
+                  <TableCell align="right">
+                    <IconButton
+                      aria-label="delete"
+                      className={classes.margin}
+                      onClick={() => this.handleDeleteRow(index)}
+                    >
+                      <DeleteIcon fontSize="small" />
+                    </IconButton>
+                  </TableCell>
 
-                {isEditMode && (
-                  <React.Fragment>
-                    <TableCell align="right">
-                      <IconButton
-                        aria-label="delete"
-                        className={classes.margin}
-                        onClick={() => this.handleDeleteRow(index)}
-                      >
-                        <DeleteIcon fontSize="small" />
-                      </IconButton>
-                    </TableCell>
+                  <TableCell align="right">
+                    <Fab
+                      size="small"
+                      aria-label="save"
+                      className={
+                        isDirtyStaging.length &&
+                        isDirtyStaging.findIndex((elem) => elem === index) !==
+                          -1
+                          ? true
+                            ? classes.fabGreen
+                            : ""
+                          : ""
+                      }
+                      onClick={() => this.handleSaveLineChanges(index)}
+                    >
+                      <SaveIcon />
+                    </Fab>
+                  </TableCell>
+                </TableRow>
+              ))} */}
 
-                    <TableCell align="right">
-                      <Button
-                        variant="contained"
-                        color="primary"
-                        size="small"
-                        className={classes.button}
-                        startIcon={<SaveIcon />}
-                        onClick={this.handleSaveForm}
-                      >
-                        Save
-                      </Button>
-                    </TableCell>
-                  </React.Fragment>
-                )}
-              </TableRow>
-            ))}
+            {!isEditMode &&
+              allPaymentList.map((row, index) => (
+                <TableRow key={index}>
+                  <TableCell component="th" scope="row">
+                    {row.paymentLabel}
+                  </TableCell>
+                  <TableCell align="right">{row.amount}</TableCell>
+                  <TableCell align="right">{row.paymentMethod}</TableCell>
+                  <TableCell align="right">
+                    {new Date(row.dueDate).toLocaleDateString()}
+                  </TableCell>
+                  <TableCell align="right">
+                    {row.isPaid ? "Yes" : "No"}
+                  </TableCell>
+                </TableRow>
+              ))}
           </TableBody>
         </Table>
       </TableContainer>
@@ -102,17 +249,16 @@ class SimpleTable extends React.Component {
 }
 
 const mapStateToProps = (state) => {
-  const allPaymentList = [...state.allPayments.allPaymentList];
+  const allPaymentList = JSON.parse(
+    JSON.stringify(state.allPayments.allPaymentList)
+  );
   const { isEditMode } = state.allPayments;
-  console.log("Table", state.allPayments.allPaymentList);
   return {
-    allItems: allPaymentList,
-    isEditMode: isEditMode,
+    allPaymentList,
+    isEditMode,
   };
 };
 
 export default connect(mapStateToProps, {
-  editingMode,
-  deleteRow,
-  disableButton,
+  updaterLineItem,
 })(withStyles(styles)(SimpleTable));

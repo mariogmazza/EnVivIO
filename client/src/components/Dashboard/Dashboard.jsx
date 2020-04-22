@@ -24,6 +24,8 @@ import AllPaymentList from "./AllPaymentList";
 import Copyright from "../Copyright";
 import TableAllItem from "./TableAllItem";
 import SaveTableButton from "./SaveTableButton";
+import SavingPopOver from "./SavingPopOver";
+import DeleteRowModal from "./DeleteRowModal";
 
 const drawerWidth = 240;
 
@@ -191,11 +193,13 @@ export default function Dashboard() {
                 <br />
                 <SaveTableButton />
               </Paper>
+              <SavingPopOver />
+              <DeleteRowModal />
             </Grid>
 
             {/* <Grid item xs={12}>
               <Paper className={classes.paper}>
-                <MustList />
+                <SavingPopOver />
               </Paper>
             </Grid> */}
           </Grid>
