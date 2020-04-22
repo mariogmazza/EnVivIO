@@ -1,98 +1,79 @@
-import "date-fns";
-import React, { useEffect } from "react";
-import DateFnsUtils from "@date-io/date-fns";
-import {
-  MuiPickersUtilsProvider,
-  KeyboardDatePicker
-} from "@material-ui/pickers";
-import { makeStyles } from "@material-ui/core/styles";
-import { saveDueDate } from "../redux/actions/formFieldAction";
-import configureStore from "../redux/store/configureStore";
+import React, { Component, Fragment } from "react";
+import { KeyboardDatePicker } from "@material-ui/pickers";
 import { connect } from "react-redux";
+import { updaterLineItem } from "../redux/actions/allListActions";
 
-const useStyles = makeStyles(theme => ({
-  root: {
-    "& > *": {
-      margin: theme.spacing(1)
-    }
-  },
-  extendedIcon: {
-    marginRight: theme.spacing(1)
-  },
-  muiFormControlMarginNormal: {
-    marginTop: "0px",
-    marginBottom: " 0px"
+class CustomDatePicker extends Component {
+  constructor(props) {
+    super(props);
+
+    this.state = {
+      localDate: new Date(),
+    };
   }
-}));
 
-const store = configureStore();
+  handleDateChange = (date) => {
+    this.setState({ localDate: date });
+    const { index } = this.props;
 
-function MaterialUIPickers(props) {
-  const classes = useStyles();
-
-  // The first commit of Material-UI
-  const [selectedDate, setSelectedDate] = React.useState(new Date());
-
-  const { fieldArrayInfo, index, saveDueDate } = props;
-
-  const onLoadSave = () => {
-    const formattedDate = `${new Date().getMonth()}/ ${new Date().getDate() /
-      new Date()}}`;
-
-    const tempArr = [...fieldArrayInfo];
-    if (fieldArrayInfo) {
-      tempArr[index][2] = JSON.stringify(new Date());
+    if (this.props.inputVariantType === "outlined") {
+      this.props.updaterLineItem({
+        commands: ["SAVING_DUE_DATE"],
+        content: { date },
+      });
     }
 
-    store.dispatch(saveDueDate(tempArr));
-  };
-
-  useEffect(() => {
-    console.log("mounted");
-
-    onLoadSave(); // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const handleDateChange = (e, dateFormatted) => {
-    const tempArr = [...props.fieldArrayInfo];
-
-    if (dateFormatted) {
-      tempArr[props.index][2] = dateFormatted;
+    if (this.props.index !== null) {
+      this.props.updaterLineItem({
+        commands: ["UPDATE_DUEDATE_LINEITEM_STAGING", "ADD_TO_ISDIRTY_LIST"],
+        content: { date, index },
+      });
     }
-
-    setSelectedDate(dateFormatted);
-    props.saveDueDate(tempArr);
   };
 
-  return (
-    <React.Fragment>
-      <MuiPickersUtilsProvider utils={DateFnsUtils}>
+  render() {
+    const {
+      index,
+      inputVariantType,
+      isEditMode,
+      savedDueDate,
+      tempStagingList,
+    } = this.props;
+
+    return (
+      <Fragment>
         <KeyboardDatePicker
-          className={classes.muiFormControlMarginNormal}
-          //   disableToolbar
+          autoOk
           variant="inline"
-          inputVariant="outlined"
+          inputVariant={inputVariantType}
+          disabled={inputVariantType === "outlined" ? isEditMode : false}
+          label={inputVariantType === "outlined" ? "Due Date" : ""}
           format="MM/dd/yyyy"
-          margin="normal"
-          //   id="date-picker-inline"
-          label="Due date"
-          value={selectedDate}
-          onChange={(e, dateFormatted) => handleDateChange(e, dateFormatted)}
-          KeyboardButtonProps={{
-            "aria-label": "change date"
-          }}
+          value={
+            inputVariantType === "outlined"
+              ? savedDueDate
+              : tempStagingList.length && tempStagingList[index]
+              ? tempStagingList[index].dueDate
+              : this.state.localDate
+          }
+          InputAdornmentProps={{ position: "start" }}
+          onChange={(date) => this.handleDateChange(date)}
         />
-      </MuiPickersUtilsProvider>
-    </React.Fragment>
-  );
+      </Fragment>
+    );
+  }
 }
 
-const mapState = state => ({
-  fieldArrayInfo: state.addFormFieldReducer
-});
-
-const action = {
-  saveDueDate
+const mapStateToProps = (state) => {
+  const { isEditMode, savedDueDate } = state.allPayments;
+  const tempStagingList = [...state.allPayments.tempStagingList];
+  return {
+    tempStagingList,
+    savedDueDate,
+    isEditMode,
+  };
 };
 
-export default connect(mapState, action)(MaterialUIPickers);
+export default connect(mapStateToProps, {
+  updaterLineItem,
+})(CustomDatePicker);
